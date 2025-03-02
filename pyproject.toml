@@ -1,0 +1,26 @@
+[project]
+name = "pysync"
+version = "0.1.0"
+description = "Sync your pyproject.toml and uv lockfile"
+readme = "README.md"
+requires-python = ">=3.10"
+dependencies = [
+    "packaging>=24.2",
+    "tomli>=2.2.1",
+]
+
+[dependency-groups]
+dev = [
+    "mypy>=1.15.0",
+    "ruff>=0.9.9",
+]
+
+[build-system]
+requires = ["hatchling"]
+build-backend = "hatchling.build"
+
+[tool.mypy]
+strict = true
+
+[tool.ruff]
+line-length = 120
