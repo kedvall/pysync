@@ -6,6 +6,7 @@ readme = ""
 requires-python = ">=3.10"
 dependencies = [
     "requests>=2.31,<3",
+    "pydantic>=2.10.6",
 ]
 
 [dependency-groups]

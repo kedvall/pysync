@@ -7,6 +7,7 @@ from typing import Any, NamedTuple
 from packaging.specifiers import SpecifierSet, Specifier
 from packaging.version import Version
 import tomli
+import tomli_w
 
 # Regex that matches Python package names from https://packaging.python.org/en/latest/specifications/name-normalization/
 PACKAGE_NAME_REGEX = r"^([A-Z0-9][A-Z0-9._-]*[A-Z0-9]|[A-Z0-9])"
@@ -103,7 +104,7 @@ def get_synced_dependency(dependency: str, name: str, package_version: Version, 
     for specifier in specifiers:
         if specifier.operator in SUPPORTED_OPERATORS and Version(specifier.version) != package_version:
             synced_version_specifier = get_synced_version_specifier(package_version, specifier)
-            print(f"Bumped {name} from {specifier.version} to {synced_version_specifier.version}")
+            print(f"- Bumped {name} from {specifier.version} to {synced_version_specifier.version}")
             dependency = dependency.replace(str(specifier), str(synced_version_specifier))
     return dependency
 
@@ -129,7 +130,20 @@ def sync(workdir: Path) -> None:
             )
             updated_deps.append(package.name)
 
-    print(f"Updated {len(updated_deps)} dependencies: {', '.join(updated_deps)}")
+    # Create updated pyproject.toml file  # TODO: Improve this
+    for i, dep in enumerate(pyproject["project"]["dependencies"]):
+        name = re.search(PACKAGE_NAME_REGEX, dep, re.IGNORECASE)[0]  # match[0] is package name
+        pyproject["project"]["dependencies"][i] = f"{name}{top_level_deps[name]}"
+    for group, dependencies in pyproject.get("dependency-groups", {}).items():
+        for i, dep in enumerate(dependencies):
+            name = re.search(PACKAGE_NAME_REGEX, dep, re.IGNORECASE)[0]  # match[0] is package name
+            pyproject["dependency-groups"][group][i] = f"{name}{top_level_deps[name]}"
+
+    # Write updated pyproject.toml
+    with Path(workdir, "pyproject.toml").open("wb") as file:
+        tomli_w.dump(pyproject, file)
+
+    print(f"Updated {len(updated_deps)} dependencies")
 
 
 if __name__ == "__main__":
