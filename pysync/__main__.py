@@ -6,12 +6,14 @@ from typing import Annotated, Any, NamedTuple
 import tomli
 import tomli_w
 import typer
+from rich.console import Console
 from packaging.specifiers import Specifier, SpecifierSet
 from packaging.version import Version
 
 from pysync.uv import uv_sync
 
 app = typer.Typer()
+console = Console()
 
 # Regex that matches Python package names from https://packaging.python.org/en/latest/specifications/name-normalization/
 PACKAGE_NAME_REGEX = r"^([A-Z0-9][A-Z0-9._-]*[A-Z0-9]|[A-Z0-9])"
@@ -57,7 +59,6 @@ def sync(
     uv_passthrough_args: Annotated[list[str] | None, typer.Argument()] = None,
 ) -> None:
     """Sync minimum dependency versions of the pyproject.toml and uv.lock files"""
-    uv_sync(workdir, upgrade=False)  # Call 'uv sync' as a subprocess to update lockfile
     uv_sync(workdir, uv_passthrough_args)  # Call 'uv sync' as a subprocess to update lockfile
     sync_dependencies(workdir)
 
@@ -80,7 +81,7 @@ def get_dependencies(pyproject: dict[str, Any]) -> dict[str, str]:
     for dep in project_deps + additional_deps:
         match = re.search(PACKAGE_NAME_REGEX, dep, re.IGNORECASE)
         if not match:
-            print(f"Failed to parse {dep}, invalid package name. Skipping...")
+            console.print(f"Failed to parse {dep}, invalid package name. Skipping...")
             continue
         version_specifiers = str(dep[match.end() :])  # Trim package name, keep as string to allow replacement
         top_level_deps[match[0]] = version_specifiers  # match[0] is package name
@@ -108,7 +109,7 @@ def get_synced_dependency(dependency: str, name: str, package_version: Version, 
     for specifier in specifiers:
         if specifier.operator in SUPPORTED_OPERATORS and Version(specifier.version) != package_version:
             synced_version_specifier = get_synced_version_specifier(package_version, specifier)
-            print(f"- Bumped {name} from {specifier.version} to {synced_version_specifier.version}")
+            console.print(f"- Bumped {name} from {specifier.version} to {synced_version_specifier.version}")
             dependency = dependency.replace(str(specifier), str(synced_version_specifier))
     return dependency
 
@@ -116,7 +117,7 @@ def get_synced_dependency(dependency: str, name: str, package_version: Version, 
 def sync_dependencies(workdir: Path) -> None:
     """Sync pyproject.toml dependency versions with versions in the uv.lock file"""
     # Load pyproject.toml and uv.lock files
-    with Path(workdir, "uv.lock").open("rb") as f:
+    with Path(workdir, "pyproject.toml").open("rb") as f:
         pyproject = tomli.load(f)
     with Path(workdir, "uv.lock").open("rb") as f:
         lockfile = tomli.load(f)
@@ -127,7 +128,11 @@ def sync_dependencies(workdir: Path) -> None:
         for pkg in lockfile["package"]
         if pkg["name"] in top_level_deps
     ]
-    print(f"Found {len(top_level_packages)} top-level packages ({len(lockfile['package'])} total)")
+    console.print(
+        "[bold]Syncing dependency versions...[/]\n"
+        f"Found {len(top_level_packages)} top-level packages ({len(lockfile['package'])} total)",
+        highlight=False
+    )
 
     # Bump dependency specifier versions
     updated_deps: list[str] = []
@@ -151,8 +156,7 @@ def sync_dependencies(workdir: Path) -> None:
     with Path(workdir, "pyproject.toml").open("wb") as file:
         tomli_w.dump(pyproject, file)
 
-    print(f"Updated {len(updated_deps)} dependencies")
-
+    console.print(f"[bold green]Updated {len(updated_deps)} dependencies")
 
 if __name__ == "__main__":
     app()  # Support calling via python -m (as a module)
