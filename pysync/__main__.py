@@ -9,6 +9,8 @@ from packaging.version import Version
 import tomli
 import tomli_w
 
+from pysync.uv import uv_sync
+
 # Regex that matches Python package names from https://packaging.python.org/en/latest/specifications/name-normalization/
 PACKAGE_NAME_REGEX = r"^([A-Z0-9][A-Z0-9._-]*[A-Z0-9]|[A-Z0-9])"
 
@@ -109,7 +111,7 @@ def get_synced_dependency(dependency: str, name: str, package_version: Version, 
     return dependency
 
 
-def sync(workdir: Path) -> None:
+def sync_dependencies(workdir: Path) -> None:
     """Sync pyproject.toml dependency versions with versions in the uv.lock file"""
     pyproject = load_toml_file(workdir, "pyproject.toml")  # Load the pyproject.toml file
     lockfile = load_toml_file(workdir, "uv.lock")  # Load the uv.lock file as toml
@@ -147,4 +149,6 @@ def sync(workdir: Path) -> None:
 
 
 if __name__ == "__main__":
-    sync(get_workdir())
+    _workdir = get_workdir()
+    uv_sync(_workdir, upgrade=False)
+    sync_dependencies(_workdir)
