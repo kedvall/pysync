@@ -1,15 +1,17 @@
 import re
-import sys
-from pathlib import Path
 from enum import Enum
-from typing import Any, NamedTuple
+from pathlib import Path
+from typing import Annotated, Any, NamedTuple
 
-from packaging.specifiers import SpecifierSet, Specifier
-from packaging.version import Version
 import tomli
 import tomli_w
+import typer
+from packaging.specifiers import Specifier, SpecifierSet
+from packaging.version import Version
 
 from pysync.uv import uv_sync
+
+app = typer.Typer()
 
 # Regex that matches Python package names from https://packaging.python.org/en/latest/specifications/name-normalization/
 PACKAGE_NAME_REGEX = r"^([A-Z0-9][A-Z0-9._-]*[A-Z0-9]|[A-Z0-9])"
@@ -36,24 +38,28 @@ class VersionSpecifierOperators(str, Enum):
 SUPPORTED_OPERATORS = [operator.value for operator in VersionSpecifierOperators]
 
 
-def get_workdir() -> Path:
-    if len(sys.argv) < 2:
-        return Path.cwd()
-    workdir = Path(sys.argv[1]).resolve()
-    if not workdir.exists():
-        sys.exit(f"{workdir} not found, exiting...")
-    elif workdir.is_file():
-        workdir = workdir.parent
+def workdir_callback(workdir_arg: Path) -> Path:
+    """Ensure pyproject.toml and uv.lock files exist in the given working directory"""
+    workdir = workdir_arg.parent if workdir_arg.is_file() else workdir_arg  # Get parent dir if called on a file
+    if not Path(workdir, "pyproject.toml").exists():
+        raise typer.BadParameter(f"pyproject.toml not found in workdir: {workdir}")
+    if not Path(workdir, "uv.lock").exists():
+        raise typer.BadParameter(f"uv.lock not found in workdir: {workdir}")
     return workdir
 
 
-def load_toml_file(workdir: Path, filename: str) -> dict[str, Any]:
-    """Loads a toml file from the given workdir, with error handling"""
-    try:
-        with Path(workdir, filename).open("rb") as file:
-            return tomli.load(file)
-    except FileNotFoundError:
-        sys.exit(f"Failed to find {filename} file in {workdir}")
+@app.command()
+def sync(
+    workdir: Annotated[
+        Path,
+        typer.Argument(
+            exists=True, writable=True, resolve_path=True, callback=workdir_callback, default_factory=Path.cwd
+        ),
+    ],
+) -> None:
+    """Sync minimum dependency versions of the pyproject.toml and uv.lock files"""
+    uv_sync(workdir, upgrade=False)  # Call 'uv sync' as a subprocess to update lockfile
+    sync_dependencies(workdir)
 
 
 def get_dependency_group_deps(pyproject: dict[str, Any]) -> list[str]:
@@ -84,11 +90,7 @@ def get_dependencies(pyproject: dict[str, Any]) -> dict[str, str]:
 
 def needs_sync(package_version: Version, specifiers: SpecifierSet) -> bool:
     return any(
-        [
-            spec
-            for spec in specifiers
-            if spec.operator in SUPPORTED_OPERATORS and Version(spec.version) != package_version
-        ]
+        spec for spec in specifiers if spec.operator in SUPPORTED_OPERATORS and Version(spec.version) != package_version
     )
 
 
@@ -113,8 +115,12 @@ def get_synced_dependency(dependency: str, name: str, package_version: Version, 
 
 def sync_dependencies(workdir: Path) -> None:
     """Sync pyproject.toml dependency versions with versions in the uv.lock file"""
-    pyproject = load_toml_file(workdir, "pyproject.toml")  # Load the pyproject.toml file
-    lockfile = load_toml_file(workdir, "uv.lock")  # Load the uv.lock file as toml
+    # Load pyproject.toml and uv.lock files
+    with Path(workdir, "uv.lock").open("rb") as f:
+        pyproject = tomli.load(f)
+    with Path(workdir, "uv.lock").open("rb") as f:
+        lockfile = tomli.load(f)
+
     top_level_deps = get_dependencies(pyproject)  # Get direct project dependencies from all dependency groups
     top_level_packages = [  # Get top-level packages
         Package(name=pkg["name"], version=Version(pkg["version"]), specifiers=SpecifierSet(top_level_deps[pkg["name"]]))
@@ -149,6 +155,4 @@ def sync_dependencies(workdir: Path) -> None:
 
 
 if __name__ == "__main__":
-    _workdir = get_workdir()
-    uv_sync(_workdir, upgrade=False)
-    sync_dependencies(_workdir)
+    app()  # Support calling via python -m (as a module)
