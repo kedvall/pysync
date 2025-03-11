@@ -45,20 +45,20 @@ def workdir_callback(workdir_arg: Path) -> Path:
         raise typer.BadParameter(f"pyproject.toml not found in workdir: {workdir}")
     if not Path(workdir, "uv.lock").exists():
         raise typer.BadParameter(f"uv.lock not found in workdir: {workdir}")
-    return workdir
+    return workdir.resolve()
 
 
-@app.command()
+@app.command(context_settings={"allow_extra_args": True, "ignore_unknown_options": True})
 def sync(
     workdir: Annotated[
         Path,
-        typer.Argument(
-            exists=True, writable=True, resolve_path=True, callback=workdir_callback, default_factory=Path.cwd
-        ),
+        typer.Argument(exists=True, writable=True, callback=workdir_callback, default_factory=Path.cwd),
     ],
+    uv_passthrough_args: Annotated[list[str] | None, typer.Argument()] = None,
 ) -> None:
     """Sync minimum dependency versions of the pyproject.toml and uv.lock files"""
     uv_sync(workdir, upgrade=False)  # Call 'uv sync' as a subprocess to update lockfile
+    uv_sync(workdir, uv_passthrough_args)  # Call 'uv sync' as a subprocess to update lockfile
     sync_dependencies(workdir)
 
 
