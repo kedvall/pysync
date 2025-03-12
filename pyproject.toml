@@ -23,6 +23,12 @@ dev = [
 requires = ["hatchling"]
 build-backend = "hatchling.build"
 
+[tool.semantic_release]
+version_toml = ["pyproject.toml:project.version"]
+
+[tool.semantic_release.branches.main]
+match = "main"
+
 [tool.mypy]
 strict = true
 
