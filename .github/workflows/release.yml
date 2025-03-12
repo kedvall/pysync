@@ -57,8 +57,7 @@ jobs:
           python-version: 3.13
 
       - name: Setup | Install dependencies
-        run: |
-          pip install python-semantic-release
+        run: pip install python-semantic-release
 
       - uses: actions/download-artifact@v4
         with:
@@ -67,7 +66,7 @@ jobs:
         run: ls -lR
 
       - name: Action | Semantic Version Release
-        run:
+        run: |
           printenv
           git checkout ${{ github.ref_name }}
           semantic-release --version
