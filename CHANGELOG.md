@@ -1,6 +1,21 @@
 # CHANGELOG
 
 
+## v0.1.16 (2025-03-12)
+
+### Bug Fixes
+
+- **fix-pyinstaller**: Fix pyinstaller
+  ([`ba4e4c0`](https://github.com/kedvall/pysync/commit/ba4e4c0c419be7fdad0e2a48fe133b036cde77bf))
+
+Fix pyinstaller cmd
+
+- **use-uv-in-release**: Use uv in release
+  ([`92023f2`](https://github.com/kedvall/pysync/commit/92023f2836c7c0f6e9222aaace7cebb515d455c2))
+
+Use uv to set up and run executable build; Fix GH_TOKEN env var
+
+
 ## v0.1.15 (2025-03-12)
 
 ### Bug Fixes
