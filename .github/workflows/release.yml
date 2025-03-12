@@ -69,5 +69,6 @@ jobs:
       - name: Action | Semantic Version Release
         run:
           printenv
+          git checkout ${{ github.ref_name }}
           semantic-release --version
           semantic-release --strict version  # Create and publish a new release
