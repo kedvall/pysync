@@ -6,8 +6,11 @@ on:
       - 'v*'  # Trigger on version tags, e.g., v1.0.0
 
 jobs:
-  build-linux:
-    runs-on: ubuntu-latest
+  build:
+    strategy:
+      matrix:
+        runs-on: [ubuntu-latest, macos-latest]
+    runs-on: ${{ matrix.runs-on }}
     steps:
       - uses: actions/checkout@v4
 
@@ -25,36 +28,12 @@ jobs:
       - name: Upload Linux artifact
         uses: actions/upload-artifact@v4
         with:
-          name: pysync-linux
-          path: dist/
-
-  build-macos:
-    runs-on: macos-latest
-    steps:
-      - uses: actions/checkout@v4
-
-      - name: Set up Python
-        uses: actions/setup-python@v5
-        with:
-          python-version: 3.13
-
-      - name: Install dependencies
-        run: pip install pyinstaller
-
-      - name: Build executable
-        run: pyinstaller --onefile pysync/__main__.py --name pysync
-
-      - name: Upload Linux artifact
-        uses: actions/upload-artifact@v4
-        with:
-          name: pysync-macos
+          name: pysync-${{ matrix.runs-on }}
           path: dist/
 
   release:
     runs-on: ubuntu-latest
-    needs:
-      - build-linux
-      - build-macos
+    needs: [build]
     steps:
       - name: Set up Python
         uses: actions/setup-python@v5
@@ -70,21 +49,21 @@ jobs:
         with:
           path: downloaded
       - name: Display structure of downloaded files
-        run: ls -R downloaded
+        run: ls -lR downloaded
 
       - name: Download Linux artifact
         uses: actions/download-artifact@v4
         with:
-          name: pysync-linux
+          name: pysync-linux-latest
       - name: Display structure of downloaded files
-        run: ls -R
+        run: ls -lR
 
       - name: Download macOS artifact
         uses: actions/download-artifact@v4
         with:
-          name: pysync-macos
+          name: pysync-macos-latest
       - name: Display structure of downloaded files
-        run: ls -R
+        run: ls -lR
 
       - name: Create GitHub Release
         id: create_release
