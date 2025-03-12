@@ -63,47 +63,17 @@ jobs:
 
       - uses: actions/download-artifact@v4
         with:
-          path: downloaded
-      - name: Display structure of downloaded files
+          path: dist
+      - name: Show downloaded files
         run: ls -lR downloaded
-
-      - name: Setup | Download linux artifact
-        uses: actions/download-artifact@v4
-        with:
-          name: pysync-ubuntu-latest
-      - name: Display structure of downloaded files
-        run: ls -lR
-
-      - name: Setup | Download macOS artifact
-        uses: actions/download-artifact@v4
-        with:
-          name: pysync-macos-latest
-      - name: Display structure of downloaded files
-        run: ls -lR
 
       - name: Action | Semantic Version Release
         id: release
-        # Adjust tag with desired version if applicable.
         uses: python-semantic-release/python-semantic-release@v9.21.0
         with:
           github_token: ${{ secrets.GITHUB_TOKEN }}
           git_committer_name: "github-actions"
           git_committer_email: "actions@users.noreply.github.com"
-
-# TODO
-#      - name: Publish | Upload package to PyPI
-#        runs-on: ubuntu-latest
-#        environment:
-#          name: pypi
-#          url: https://pypi.org/p/<your-pypi-project-name>
-#        permissions:
-#          id-token: write  # IMPORTANT: this permission is mandatory for trusted publishing
-#        steps:
-#        # retrieve your distributions here
-#
-#        - name: Publish package distributions to PyPI
-#          uses: pypa/gh-action-pypi-publish@release/v1
-#        if: steps.release.outputs.released == 'true'
 
       - name: Publish | Upload to GitHub Release Assets
         uses: python-semantic-release/publish-action@v9.21.0
