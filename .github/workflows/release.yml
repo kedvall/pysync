@@ -34,13 +34,29 @@ jobs:
   release:
     runs-on: ubuntu-latest
     needs: [build]
+    concurrency:
+      group: ${{ github.workflow }}-release-${{ github.ref_name }}
+      cancel-in-progress: false
+    permissions:
+      id-token: write
+      contents: write
     steps:
-      - name: Set up Python
+      - name: Setup | Checkout Repository on Release Branch
+        uses: actions/checkout@v4
+        with:
+          ref: ${{ github.ref_name }}
+          fetch-depth: 0
+
+      - name: Setup | Force release branch to be at workflow SHA
+        run: |
+          git reset --hard ${{ github.sha }}
+
+      - name: Setup | Set up Python
         uses: actions/setup-python@v5
         with:
           python-version: 3.13
 
-      - name: Install dependencies
+      - name: Setup | Install dependencies
         run: |
           pip install python-semantic-release
           semantic-release --version
@@ -51,48 +67,36 @@ jobs:
       - name: Display structure of downloaded files
         run: ls -lR downloaded
 
-      - name: Download linux artifact
+      - name: Setup | Download linux artifact
         uses: actions/download-artifact@v4
         with:
           name: pysync-ubuntu-latest
       - name: Display structure of downloaded files
         run: ls -lR
 
-      - name: Download macOS artifact
+      - name: Setup | Download macOS artifact
         uses: actions/download-artifact@v4
         with:
           name: pysync-macos-latest
       - name: Display structure of downloaded files
         run: ls -lR
 
-      - name: Create GitHub Release
-        id: create_release
-        uses: actions/create-release@v1
-        env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+      - name: Action | Semantic Version Release
+        id: release
+        # Adjust tag with desired version if applicable.
+        uses: python-semantic-release/python-semantic-release@v9.21.0
         with:
-          tag_name: ${{ github.ref }}
-          release_name: "pysync ${{ github.ref }}"
-          draft: false
-          prerelease: false
-          body: "Automatically generated release for tag ${{ github.ref }}."
+          github_token: ${{ secrets.GITHUB_TOKEN }}
+          git_committer_name: "github-actions"
+          git_committer_email: "actions@users.noreply.github.com"
 
-      - name: Upload Linux Release Asset
-        uses: actions/upload-release-asset@v1
-        env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-        with:
-          upload_url: ${{ steps.create_release.outputs.upload_url }}
-          asset_path: pysync-linux/pysync
-          asset_name: pysync-linux
-          asset_content_type: application/octet-stream
+      - name: Publish | Upload package to PyPI
+        uses: pypa/gh-action-pypi-publish@v1
+        if: steps.release.outputs.released == 'true'
 
-      - name: Upload macOS Release Asset
-        uses: actions/upload-release-asset@v1
-        env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+      - name: Publish | Upload to GitHub Release Assets
+        uses: python-semantic-release/publish-action@v9.21.0
+        if: steps.release.outputs.released == 'true'
         with:
-          upload_url: ${{ steps.create_release.outputs.upload_url }}
-          asset_path: pysync-macos/pysync
-          asset_name: pysync-macos
-          asset_content_type: application/octet-stream
+          github_token: ${{ secrets.GITHUB_TOKEN }}
+          tag: ${{ steps.release.outputs.tag }}
