@@ -17,7 +17,7 @@ jobs:
       - name: Set up Python
         uses: actions/setup-python@v5
         with:
-          python-version: 3.13
+          python-version: 3.10
 
       - name: Install dependencies
         run: pip install pyinstaller
@@ -54,7 +54,7 @@ jobs:
       - name: Setup | Set up Python
         uses: actions/setup-python@v5
         with:
-          python-version: 3.13
+          python-version: 3.10
 
       - name: Setup | Install dependencies
         run: |
@@ -65,7 +65,7 @@ jobs:
         with:
           path: dist
       - name: Show downloaded files
-        run: ls -lR downloaded
+        run: ls -lR
 
       - name: Action | Semantic Version Release
         id: release
