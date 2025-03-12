@@ -3,22 +3,20 @@ name = "pysync"
 version = "0.1.0"
 description = "Sync your pyproject.toml and uv lockfile"
 readme = "README.md"
-requires-python = ">=3.12"
+requires-python = ">=3.13"
 dependencies = [
     "packaging>=24.2",
     "rich>=13.9.4",
-    "tomlkit>=0.13.2",
     "typer>=0.15.2",
 ]
 
 [project.scripts]
 pysync = "pysync.__main__:app"
 
-
 [dependency-groups]
 dev = [
     "mypy>=1.15.0",
-    "ruff>=0.9.9",
+    "ruff>=0.9.10",
 ]
 
 [build-system]

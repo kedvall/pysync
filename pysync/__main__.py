@@ -1,12 +1,11 @@
 import re
+import tomllib
 from collections import defaultdict
 from dataclasses import dataclass, field
 from enum import Enum
 from pathlib import Path
 from typing import Annotated, Any, NamedTuple
 
-import tomli
-import tomli_w
 import typer
 from packaging.specifiers import SpecifierSet
 from packaging.version import Version
@@ -73,10 +72,9 @@ def get_dependencies(pyproject: dict[str, Any]) -> DependencyMap:
     return dependency_map
 
 
-def get_synced_dependency(dependency: Dependency, package_version: Version, updates: list[str]) -> str:
+def get_synced_dependency(dependency: Dependency, package_version: Version) -> str:
     if not dependency.specifiers:
         console.print(f"[red]- WARNING {dependency.name} has no version specifiers, pinning to >={package_version}")
-        updates.append(dependency.name)  # Add to the list of updated dependencies
         return f"{dependency.name}>={package_version}"  # Missing specifiers, pin to >= current version
 
     for specifier in dependency.specifiers:
@@ -84,7 +82,6 @@ def get_synced_dependency(dependency: Dependency, package_version: Version, upda
             continue  # Version is already up to date
         if specifier.operator in [VersionSpecifiers.GREATER_THAN, VersionSpecifiers.GREATER_THAN_OR_EQUAL]:
             console.print(f"- Bumping {dependency.name} from {specifier} to >={package_version}")
-            updates.append(dependency.name)  # Add to the list of updated dependencies
             return dependency.string.replace(str(specifier), f">={package_version}")  # Replace returns a copy
         elif specifier.operator is VersionSpecifiers.COMPATIBLE:
             console.print(f"[red]- WARNING {specifier.operator} is not supported, skipping {dependency.specifiers}")
@@ -94,10 +91,12 @@ def get_synced_dependency(dependency: Dependency, package_version: Version, upda
 
 def sync_dependencies(workdir: Path) -> None:
     """Sync pyproject.toml dependency versions with versions in the uv.lock file"""
+    with Path(workdir, "pyproject.toml").open("r") as f:
+        lines = f.readlines()  # Read file as raw text
     with Path(workdir, "pyproject.toml").open("rb") as f:
-        pyproject = tomli.load(f)
+        pyproject = tomllib.load(f)
     with Path(workdir, "uv.lock").open("rb") as f:
-        packages: list[dict[str, Any]] = tomli.load(f)["package"]  # Get dict of packages from lockfile
+        packages = tomllib.load(f)["package"]  # Get a list of packages from the lockfile
 
     # Get direct project dependencies and corresponding top-level packages from all dependency groups
     dependency_map = get_dependencies(pyproject)
@@ -112,20 +111,32 @@ def sync_dependencies(workdir: Path) -> None:
         highlight=False,
     )
 
-    # Bump dependency specifiers for root-level dependencies
     updates: list[str] = []  # List of updated dependencies
-    pyproject["project"]["dependencies"] = [
-        get_synced_dependency(dep, top_level_packages[dep.name], updates) for dep in dependency_map.root_dependencies
-    ]
-    # Bump dependency specifiers for dependencies in dependency groups
-    pyproject["dependency-groups"] = {
-        group: [get_synced_dependency(dep, top_level_packages[dep.name], updates) for dep in dependencies]
-        for group, dependencies in dependency_map.additional_dependencies.items()
-    }
 
-    # Write updated pyproject.toml
-    with Path(workdir, "pyproject.toml").open("wb") as file:
-        tomli_w.dump(pyproject, file)
+    # Bump dependency specifiers for root-level dependencies
+    for dependency in dependency_map.root_dependencies:
+        dependency_pattern = rf"^ *\"{dependency.string}[~=!<\"]"
+        for line_num, line in enumerate(lines):
+            if re.search(dependency_pattern, line):
+                updates.append(dependency.string)
+                lines[line_num] = line.replace(
+                    dependency.string, get_synced_dependency(dependency, top_level_packages[dependency.name])
+                )
+
+    # Bump dependency specifiers for dependencies in dependency groups
+    for dependencies in dependency_map.additional_dependencies.values():
+        for dependency in dependencies:
+            dependency_pattern = rf"^ *\"{dependency.string}[~=!<\"]"
+            for line_num, line in enumerate(lines):
+                if re.search(dependency_pattern, line):
+                    updates.append(dependency.string)
+                    lines[line_num] = line.replace(
+                        dependency.string, get_synced_dependency(dependency, top_level_packages[dependency.name])
+                    )
+
+    # Write updated pyproject.toml, write as raw lines to preserve formatting and comments
+    with Path(workdir, "pyproject.toml").open("w", newline="") as f:
+        f.writelines(lines)
 
     console.print(f"[bold green]Updated {len(updates)} dependencies")
 
