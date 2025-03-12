@@ -14,16 +14,16 @@ jobs:
     steps:
       - uses: actions/checkout@v4
 
-      - name: Set up Python
+      - name: Install uv
+        uses: astral-sh/setup-uv@v5
+
+      - name: "Set up Python"
         uses: actions/setup-python@v5
         with:
-          python-version: 3.13
-
-      - name: Install dependencies
-        run: pip install pyinstaller
+          python-version-file: "pyproject.toml"
 
       - name: Build executable
-        run: pyinstaller --onefile pysync/__main__.py --name pysync
+        run: uv run --with pyinstaller --onefile pysync/__main__.py --name pysync
 
       - name: Upload artifact
         uses: actions/upload-artifact@v4
@@ -40,6 +40,8 @@ jobs:
     permissions:
       id-token: write
       contents: write
+    env:
+      GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
     steps:
       - name: Setup | Checkout Repository on Release Branch
         uses: actions/checkout@v4
@@ -47,14 +49,14 @@ jobs:
           ref: ${{ github.ref_name }}
           fetch-depth: 0
 
-      - name: Setup | Force release branch to be at workflow SHA
-        run: |
-          git reset --hard ${{ github.sha }}
-
       - name: Setup | Set up Python
         uses: actions/setup-python@v5
         with:
           python-version: 3.13
+
+      - name: Setup | Force release branch to be at workflow SHA
+        run: |
+          git reset --hard ${{ github.sha }}
 
       - name: Setup | Install dependencies
         run: pip install python-semantic-release
