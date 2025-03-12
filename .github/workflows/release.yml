@@ -49,27 +49,30 @@ jobs:
           ref: ${{ github.ref_name }}
           fetch-depth: 0
 
+      - name: Setup | Force release branch to be at workflow SHA
+        run: git reset --hard ${{ github.sha }}
+
       - name: Setup | Set up Python
         uses: actions/setup-python@v5
         with:
-          python-version: 3.13
-
-      - name: Setup | Force release branch to be at workflow SHA
-        run: |
-          git reset --hard ${{ github.sha }}
+          python-version-file: "pyproject.toml"
 
       - name: Setup | Install dependencies
-        run: pip install python-semantic-release
+        run: |
+          pip install python-semantic-release
+          semantic-release --version
 
       - uses: actions/download-artifact@v4
         with:
           path: dist
+
       - name: Show downloaded files
         run: ls -lR
 
       - name: Action | Semantic Version Release
         run: |
-          printenv
-          git checkout ${{ github.ref_name }}
-          semantic-release --version
-          semantic-release --strict version  # Create and publish a new release
+          semantic-release --strict version
+
+      - name: Publish | Upload to Github release assets
+        run: |
+          semantic-release publish
