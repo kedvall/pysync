@@ -66,11 +66,15 @@ jobs:
         uses: actions/download-artifact@v4
         with:
           name: pysync-linux
+      - name: Display structure of downloaded files
+        run: ls -R
 
       - name: Download macOS artifact
         uses: actions/download-artifact@v4
         with:
           name: pysync-macos
+      - name: Display structure of downloaded files
+        run: ls -R
 
       - name: Create GitHub Release
         id: create_release
