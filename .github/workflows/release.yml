@@ -56,7 +56,17 @@ jobs:
       - build-linux
       - build-macos
     steps:
-      - uses: actions/checkout@v4
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: 3.13
+
+      - name: Install dependencies
+        run: |
+          pip install python-semantic-release
+          semantic-release --version
+
+      - uses: actions/download-artifact@v4
         with:
           path: downloaded
       - name: Display structure of downloaded files
@@ -107,3 +117,23 @@ jobs:
           asset_path: pysync-macos/pysync
           asset_name: pysync-macos
           asset_content_type: application/octet-stream
+
+  .pypi-publish:
+    runs-on: ubuntu-latest
+    needs:
+      - build-linux
+      - build-macos
+    permissions:
+      id-token: write  # Required for trusted publishing
+    environment:
+      name: pypi
+      # OPTIONAL: uncomment and update to include your PyPI project URL in the deployment status:
+      # url: https://pypi.org/p/YOURPROJECT
+    steps:
+      - name: Retrieve release distributions
+        uses: actions/download-artifact@v4
+        with:
+          name: pysync-macos
+          path: dist/
+      - name: Publish release distributions to PyPI
+        uses: pypa/gh-action-pypi-publish@6f7e8d9c0b1a2c3d4e5f6a7b8c9d0e1f2a3b4c5d
