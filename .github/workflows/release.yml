@@ -9,18 +9,18 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
-      
+
       - name: Set up Python 3.13
         uses: actions/setup-python@v5
         with:
           python-version: 3.13
-      
+
       - name: Install PyInstaller
         run: pip install pyinstaller
-      
+
       - name: Build executable with PyInstaller
         run: pyinstaller --onefile pysync/__main__.py --name pysync
-      
+
       - name: Upload Linux artifact
         uses: actions/upload-artifact@v4
         with:
@@ -45,27 +45,29 @@ jobs:
 
       - name: Build executable with PyInstaller
         run: pyinstaller --onefile pysync/__main__.py --name pysync
-      
+
       - name: Upload macOS artifact
         uses: actions/upload-artifact@v4
         with:
           name: pysync-macos-${{ matrix.arch }}
           path: dist/pysync
 
-  # Optional: Combine macOS binaries into a universal binary using lipo if desired.
   universal-macos:
     needs: build-macos
     runs-on: macos-latest
     steps:
-      - name: Download macOS artifacts
+      - name: Download Intel macOS artifact
         uses: actions/download-artifact@v4
         with:
           name: pysync-macos-intel
-      - name: Download macOS ARM artifact
+          path: pysync-macos-intel # Ensure correct path
+
+      - name: Download ARM macOS artifact
         uses: actions/download-artifact@v4
         with:
           name: pysync-macos-arm
-      
+          path: pysync-macos-arm # Ensure correct path
+
       - name: Merge binaries using lipo
         run: lipo -create pysync-macos-intel/pysync pysync-macos-arm/pysync -output pysync
       - name: Upload universal macOS binary
