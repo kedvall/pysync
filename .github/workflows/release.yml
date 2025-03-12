@@ -25,7 +25,7 @@ jobs:
       - name: Build executable
         run: pyinstaller --onefile pysync/__main__.py --name pysync
 
-      - name: Upload Linux artifact
+      - name: Upload artifact
         uses: actions/upload-artifact@v4
         with:
           name: pysync-${{ matrix.runs-on }}
@@ -51,10 +51,10 @@ jobs:
       - name: Display structure of downloaded files
         run: ls -lR downloaded
 
-      - name: Download Linux artifact
+      - name: Download linux artifact
         uses: actions/download-artifact@v4
         with:
-          name: pysync-linux-latest
+          name: pysync-ubuntu-latest
       - name: Display structure of downloaded files
         run: ls -lR
 
