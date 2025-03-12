@@ -1,6 +1,16 @@
 # CHANGELOG
 
 
+## v0.1.17 (2025-03-12)
+
+### Bug Fixes
+
+- **fix-updated-list**: Fix updated dependency list
+  ([`4fe41de`](https://github.com/kedvall/pysync/commit/4fe41de0244ccd0eec847dc3247e34b5f9d698d1))
+
+Fix updated list
+
+
 ## v0.1.16 (2025-03-12)
 
 ### Bug Fixes
