@@ -124,7 +124,7 @@ def sync_dependencies(workdir: Path) -> None:
     }
 
     # Write updated pyproject.toml
-    with Path(workdir, "test_pyproject.toml").open("wb") as file:
+    with Path(workdir, "pyproject.toml").open("wb") as file:
         tomli_w.dump(pyproject, file)
 
     console.print(f"[bold green]Updated {len(updates)} dependencies")
