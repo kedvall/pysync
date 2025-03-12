@@ -72,9 +72,10 @@ def get_dependencies(pyproject: dict[str, Any]) -> DependencyMap:
     return dependency_map
 
 
-def get_synced_dependency(dependency: Dependency, package_version: Version) -> str:
+def get_synced_dependency(dependency: Dependency, package_version: Version, updates: list[str]) -> str:
     if not dependency.specifiers:
         console.print(f"[red]- WARNING {dependency.name} has no version specifiers, pinning to >={package_version}")
+        updates.append(dependency.string)  # Add to list of updated dependencies
         return f"{dependency.name}>={package_version}"  # Missing specifiers, pin to >= current version
 
     for specifier in dependency.specifiers:
@@ -82,6 +83,7 @@ def get_synced_dependency(dependency: Dependency, package_version: Version) -> s
             continue  # Version is already up to date
         if specifier.operator in [VersionSpecifiers.GREATER_THAN, VersionSpecifiers.GREATER_THAN_OR_EQUAL]:
             console.print(f"- Bumping {dependency.name} from {specifier} to >={package_version}")
+            updates.append(dependency.string)  # Add to list of updated dependencies
             return dependency.string.replace(str(specifier), f">={package_version}")  # Replace returns a copy
         elif specifier.operator is VersionSpecifiers.COMPATIBLE:
             console.print(f"[red]- WARNING {specifier.operator} is not supported, skipping {dependency.specifiers}")
@@ -118,9 +120,9 @@ def sync_dependencies(workdir: Path) -> None:
         dependency_pattern = rf"^ *\"{dependency.string}[~=!<\"]"
         for line_num, line in enumerate(lines):
             if re.search(dependency_pattern, line):
-                updates.append(dependency.string)
                 lines[line_num] = line.replace(
-                    dependency.string, get_synced_dependency(dependency, top_level_packages[dependency.name])
+                    dependency.string,
+                    get_synced_dependency(dependency, top_level_packages[dependency.name], updates)
                 )
 
     # Bump dependency specifiers for dependencies in dependency groups
@@ -129,9 +131,9 @@ def sync_dependencies(workdir: Path) -> None:
             dependency_pattern = rf"^ *\"{dependency.string}[~=!<\"]"
             for line_num, line in enumerate(lines):
                 if re.search(dependency_pattern, line):
-                    updates.append(dependency.string)
                     lines[line_num] = line.replace(
-                        dependency.string, get_synced_dependency(dependency, top_level_packages[dependency.name])
+                        dependency.string,
+                        get_synced_dependency(dependency, top_level_packages[dependency.name], updates)
                     )
 
     # Write updated pyproject.toml, write as raw lines to preserve formatting and comments
