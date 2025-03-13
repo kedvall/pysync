@@ -31,7 +31,7 @@ jobs:
 
       - name: Build Executable
         run: uv run --with nuitka python -m nuitka --onefile --onefile-tempdir-spec="{CACHE_DIR}/pysync/v${RELEASE_VERSION}" pysync </dev/null
-      - run: mv pysync.bin pysync-v${RELEASE_VERSION}-${{ runner.os }}.bin
+      - run: mv pysync.bin pysync-v${RELEASE_VERSION}-${{ toLower(runner.os) }}.bin
 
       - name: Show files
         run: ls -lh
