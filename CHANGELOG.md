@@ -1,6 +1,16 @@
 # CHANGELOG
 
 
+## v0.1.19 (2025-03-13)
+
+### Bug Fixes
+
+- **fix-artifact-names**: Fix broken artifact names
+  ([`b64588b`](https://github.com/kedvall/pysync/commit/b64588b7a96c302745263d698198b910e19b8e5c))
+
+Fix artifact names
+
+
 ## v0.1.18 (2025-03-13)
 
 ### Bug Fixes
