@@ -34,7 +34,7 @@ jobs:
           echo $GITHUB_ENV
 
       - name: Build Executable
-        run: uv run --with nuitka python -m nuitka --assume-yes-for-downloads --plugin-list --onefile --onefile-tempdir-spec="{CACHE_DIR}/pysync/v${VERSION}" pysync
+        run: uv run --with nuitka python -m nuitka --assume-yes-for-downloads --disable-plugins=anti-bloat --onefile --onefile-tempdir-spec="{CACHE_DIR}/pysync/v${VERSION}" pysync
 
       - name: Show files
         run: ls -lR
