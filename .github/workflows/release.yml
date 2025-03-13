@@ -32,10 +32,10 @@ jobs:
       - name: Build Executable
         run: |
           uv run --with nuitka python -m nuitka --assume-yes-for-downloads --onefile --onefile-tempdir-spec="{CACHE_DIR}/pysync/v${RELEASE_VERSION}" pysync
-          mv pysync.bin pysync-v${RELEASE_VERSION}-linux
+          mv pysync.bin pysync-v${RELEASE_VERSION}-${{ runner.os }}.bin
 
       - name: Show files
-        run: ls -lR
+        run: ls -lh
 
       - name: Upload Artifacts
         uses: actions/upload-artifact@v4
