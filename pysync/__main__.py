@@ -85,7 +85,7 @@ def get_synced_dependency(dependency: Dependency, package_version: Version, upda
             console.print(f"- Bumping {dependency.name} from {specifier} to >={package_version}")
             updates.append(dependency.string)  # Add to list of updated dependencies
             return dependency.string.replace(str(specifier), f">={package_version}")  # Replace returns a copy
-        elif specifier.operator is VersionSpecifiers.COMPATIBLE:
+        elif specifier.operator is VersionSpecifiers.COMPATIBLE:  # TODO: Support this
             console.print(f"[red]- WARNING {specifier.operator} is not supported, skipping {dependency.specifiers}")
 
     return dependency.string  # Nothing to update
@@ -115,8 +115,10 @@ def sync_dependencies(workdir: Path) -> None:
 
     updates: list[str] = []  # List of updated dependencies
 
+    # TODO: Generalize and start search at relevant def line number
     # Bump dependency specifiers for root-level dependencies
     for dependency in dependency_map.root_dependencies:
+        # TODO: Match single line defs like 'dependencies=[...' (for dep groups too)
         dependency_pattern = rf"^ *\"{dependency.string}[~=!<\"]"
         for line_num, line in enumerate(lines):
             if re.search(dependency_pattern, line):
@@ -153,6 +155,7 @@ def workdir_callback(workdir_arg: Path) -> Path:
     return workdir.resolve()
 
 
+# TODO: Check if first option starts with '--'. If so, auto use cwd instead of interpreting '--...' as workdir
 @app.command(context_settings={"allow_extra_args": True, "ignore_unknown_options": True})
 def sync(
     workdir: Annotated[

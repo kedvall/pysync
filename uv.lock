@@ -92,7 +92,7 @@ wheels = [
 
 [[package]]
 name = "pysync"
-version = "0.1.19"
+version = "0.1.16"
 source = { editable = "." }
 dependencies = [
     { name = "packaging" },
