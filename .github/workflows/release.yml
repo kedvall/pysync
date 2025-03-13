@@ -27,11 +27,7 @@ jobs:
           python-version-file: "pyproject.toml"
 
       - name: Set Release Version
-        run: |
-          echo $GITHUB_ENV
-          echo "VERSION=$(uv run --with python-semantic-release semantic-release --strict version --print)" >> $GITHUB_ENV
-          echo $RELEASE_VERSION
-          echo $GITHUB_ENV
+        run: echo "RELEASE_VERSION=$(uv run --with python-semantic-release semantic-release --strict version --print)" >> $GITHUB_ENV
 
       - name: Build Executable
         run: uv run --with nuitka python -m nuitka --assume-yes-for-downloads --disable-plugins=anti-bloat --onefile --onefile-tempdir-spec="{CACHE_DIR}/pysync/v${RELEASE_VERSION}" pysync
