@@ -29,12 +29,12 @@ jobs:
       - name: Set Release Version
         run: |
           echo $GITHUB_ENV
-          echo "VERSION=$(semantic-release --strict version --print)" >> $GITHUB_ENV
+          echo "VERSION=$(uv run --with python-semantic-release semantic-release --strict version --print)" >> $GITHUB_ENV
           echo $VERSION
           echo $GITHUB_ENV
 
       - name: Build Executable
-        run: uv run --with nuitka python -m nuitka --onefile --onefile-tempdir-spec="{CACHE_DIR}/pysync/v$(VERSION)" pysync
+        run: uv run --with nuitka python -m nuitka --assume-yes-for-downloads --plugin-list --onefile --onefile-tempdir-spec="{CACHE_DIR}/pysync/v${VERSION}" pysync
 
       - name: Show files
         run: ls -lR
