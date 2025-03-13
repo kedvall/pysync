@@ -16,7 +16,7 @@ pysync = "pysync.__main__:app"
 [dependency-groups]
 dev = [
     "mypy>=1.15.0",
-    "ruff>=0.9.10",
+    "ruff>=0.10.0",
 ]
 
 [build-system]
