@@ -9,27 +9,41 @@ jobs:
   build:
     strategy:
       matrix:
-        runs-on: [ubuntu-latest, macos-latest]
-    runs-on: ${{ matrix.runs-on }}
+        os: [macos-latest, ubuntu-latest]
+    runs-on: ${{ matrix.os }}
     steps:
-      - uses: actions/checkout@v4
+      - name: Checkout Repository on Release Branch
+        uses: actions/checkout@v4
+        with:
+          ref: ${{ github.ref_name }}
+          fetch-depth: 0
 
       - name: Install uv
         uses: astral-sh/setup-uv@v5
 
-      - name: "Set up Python"
+      - name: Setup Python
         uses: actions/setup-python@v5
         with:
           python-version-file: "pyproject.toml"
 
-      - name: Build executable
-        run: uv run --with pyinstaller pyinstaller --onefile pysync/__main__.py --name pysync
+      - name: Set Release Version
+        run: |
+          echo $GITHUB_ENV
+          echo "VERSION=$(semantic-release --strict version --print)" >> $GITHUB_ENV
+          echo $VERSION
+          echo $GITHUB_ENV
 
-      - name: Upload artifact
+      - name: Build Executable
+        run: uv run --with nuitka python -m nuitka --onefile --onefile-tempdir-spec="{CACHE_DIR}/pysync/v$(VERSION)" pysync
+
+      - name: Show files
+        run: ls -lR
+
+      - name: Upload Artifacts
         uses: actions/upload-artifact@v4
         with:
-          name: pysync-${{ matrix.runs-on }}
-          path: dist/
+          name: ${{ runner.os }} Build
+          path: pysync.dist/
 
   release:
     runs-on: ubuntu-latest
@@ -43,36 +57,31 @@ jobs:
     env:
       GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
     steps:
-      - name: Setup | Checkout Repository on Release Branch
+      - name: Checkout Repository on Release Branch
         uses: actions/checkout@v4
         with:
           ref: ${{ github.ref_name }}
           fetch-depth: 0
 
-      - name: Setup | Force release branch to be at workflow SHA
-        run: git reset --hard ${{ github.sha }}
+      - name: Install uv
+        uses: astral-sh/setup-uv@v5
 
-      - name: Setup | Set up Python
+      - name: Setup Python
         uses: actions/setup-python@v5
         with:
           python-version-file: "pyproject.toml"
 
-      - name: Setup | Install dependencies
-        run: |
-          pip install python-semantic-release
-          semantic-release --version
-
-      - uses: actions/download-artifact@v4
+      - name: Download Artifacts
+        uses: actions/download-artifact@v4
         with:
-          path: dist
+          name: ${{ runner.os }} Build
+          path: pysync.dist/
 
-      - name: Show downloaded files
+      - name: Show files
         run: ls -lR
 
-      - name: Action | Semantic Version Release
-        run: |
-          semantic-release --strict version
+      - name: Publish Release
+        run: uv run --with python-semantic-release semantic-release --strict version
 
-      - name: Publish | Upload to Github release assets
-        run: |
-          semantic-release publish
+      - name: Upload Release Assets
+        run: uv run --with python-semantic-release semantic-release publish
