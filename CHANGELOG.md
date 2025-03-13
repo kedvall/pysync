@@ -1,6 +1,25 @@
 # CHANGELOG
 
 
+## v0.1.18 (2025-03-13)
+
+### Bug Fixes
+
+- **fix-ci-version**: Fix version in CI
+  ([`a25d02f`](https://github.com/kedvall/pysync/commit/a25d02f9a3a46f4294d29bdd27de8bb64a4c41da))
+
+Fix semantic version; Assume yes for Nuitka downlaods
+
+- **fix-env-var-fix**: Fix partial env var name change
+  ([`a54430f`](https://github.com/kedvall/pysync/commit/a54430f311b5e36312ac1c2d9064f04a1e672fdc))
+
+- **revert-anti-bloat-removal**: Enable anti-bloat to fix import error in CI
+  ([`21060cc`](https://github.com/kedvall/pysync/commit/21060cc675008b7b0118707981024f029c7a5769))
+
+- **use-nuitka**: Use Nuitka for building releases
+  ([`9f5b1ea`](https://github.com/kedvall/pysync/commit/9f5b1ea910945f75a1f38dc17983001456efdd9f))
+
+
 ## v0.1.17 (2025-03-12)
 
 ### Bug Fixes
