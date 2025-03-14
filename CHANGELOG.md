@@ -1,6 +1,16 @@
 # CHANGELOG
 
 
+## v0.2.1 (2025-03-14)
+
+### Bug Fixes
+
+- **write-readme**: Fix re-locking print and write a readme
+  ([`a5e4aa4`](https://github.com/kedvall/pysync/commit/a5e4aa45287f06eb748e16f93a3893e755191090))
+
+Write readme
+
+
 ## v0.2.0 (2025-03-14)
 
 ### Features
