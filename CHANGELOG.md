@@ -1,6 +1,16 @@
 # CHANGELOG
 
 
+## v0.2.0 (2025-03-14)
+
+### Features
+
+- **fix-initial-uv-arg**: Support uv arg passthrough with implicit workdir
+  ([`1b2326b`](https://github.com/kedvall/pysync/commit/1b2326b33208cae7c0c404a89dc722401e65d9b9))
+
+Fix initial uv arg
+
+
 ## v0.1.20 (2025-03-14)
 
 ### Bug Fixes
