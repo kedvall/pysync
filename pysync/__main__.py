@@ -182,7 +182,7 @@ def sync(ctx: typer.Context, args: Annotated[str, typer.Argument(callback=args_c
 
     # Sync dependencies, re-locking if there are any changes
     if sync_dependencies(workdir):
-        console.print(f"\n[bold cyan]Dependencies changed, rerunning {' '.join(uv_command)}")
+        console.print(f"\n[bold cyan]Dependencies changed, re-running {' '.join(uv_command)}")
         uv_sync(workdir, uv_command)
 
 
