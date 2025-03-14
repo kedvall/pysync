@@ -1,6 +1,24 @@
 # CHANGELOG
 
 
+## v0.1.20 (2025-03-14)
+
+### Bug Fixes
+
+- **disable-download-prompt**: Disable ccache download prompt and other minor fixes
+  ([`88df1c6`](https://github.com/kedvall/pysync/commit/88df1c637f42274715bfffb4bd14bd1f8c366342))
+
+Disable ccache download prompt
+
+- **fix-nul-redirect**: Remove null redirect and enable ccache download
+  ([`c6da106`](https://github.com/kedvall/pysync/commit/c6da106295eeacfb0d58a22486b29eb98cc422cc))
+
+- **fix-tolower**: Fix to-lower for os
+  ([`eeea664`](https://github.com/kedvall/pysync/commit/eeea6642bcb38b6dbee993a330291b640f749afb))
+
+Fix to-lower
+
+
 ## v0.1.19 (2025-03-13)
 
 ### Bug Fixes
