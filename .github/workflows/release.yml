@@ -30,7 +30,7 @@ jobs:
         run: echo "RELEASE_VERSION=$(uv run --with python-semantic-release semantic-release --strict version --print)" >> $GITHUB_ENV
 
       - name: Update version in __main__.py
-        run: sed -i "s/__version__ = \".*\"/__version__ = \"${RELEASE_VERSION}\"/" pysync/__main__.py
+        run: sed -i "s|__version__ = \".*\"|__version__ = \"$RELEASE_VERSION\"|" pysync/__main__.py
 
       - name: Build Executable
         run: uv run --with nuitka python -m nuitka --disable-ccache --onefile --onefile-tempdir-spec="{CACHE_DIR}/pysync/v${RELEASE_VERSION}" pysync
