@@ -15,7 +15,7 @@ from rich.console import Console
 
 type ParsedArgs = tuple[Path, list[str]]
 
-__version__ = "0.3.6"
+__version__ = "0.3.7"
 
 app = typer.Typer()
 console = Console()

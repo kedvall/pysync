@@ -1,6 +1,14 @@
 # CHANGELOG
 
 
+## v0.3.7 (2025-03-17)
+
+### Bug Fixes
+
+- **cleanup**: Clean up unused docs and .envrc
+  ([`60af802`](https://github.com/kedvall/pysync/commit/60af802400064f41c6ef65aa9b490105ea57b0f3))
+
+
 ## v0.3.6 (2025-03-17)
 
 ### Bug Fixes
