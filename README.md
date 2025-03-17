@@ -25,6 +25,9 @@ chmod +x pysync
 sudo mv pysync /usr/local/bin/pysync
 ```
 
+Note that the first run after installing/updating will take a while as the executable has to unpack itself.
+Subsequent runs will be much faster!
+
 ## Usage
 Simply run the **pysync** command!   
 ```shell
