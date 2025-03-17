@@ -30,7 +30,7 @@ jobs:
         run: echo "RELEASE_VERSION=$(uv run --with python-semantic-release semantic-release --strict version --print)" >> $GITHUB_ENV
 
       - name: Build Executable
-        run: </dev/null | uv run --with nuitka python -m nuitka --onefile --onefile-tempdir-spec="{CACHE_DIR}/pysync/v${RELEASE_VERSION}" pysync
+        run: uv run --with nuitka python -m nuitka --onefile --onefile-tempdir-spec="{CACHE_DIR}/pysync/v${RELEASE_VERSION}" pysync < /dev/null
 
       - name: Package files
         run: mkdir dist && mv pysync.bin dist/pysync && tar -C dist/ -czvf "pysync-$(echo "${{ runner.os }}" | tr '[:upper:]' '[:lower:]').tar.gz" pysync
