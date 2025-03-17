@@ -85,3 +85,26 @@ jobs:
 
       - name: Upload Release Assets
         run: uv run --with python-semantic-release semantic-release publish
+
+      - name: Checkout Homebrew Tap Repository
+        uses: actions/checkout@v4
+        with:
+          repository: kedvall/homebrew-pysync
+          token: ${{ secrets.GITHUB_TOKEN }}
+          path: homebrew-tap
+
+      - name: Update Homebrew Formula
+        run: |
+          RELEASE_VERSION=${GITHUB_REF##*/}
+          RELEASE_URL="https://github.com/kedvall/pysync/releases/download/${RELEASE_VERSION}/pysync-macos.tar.gz"
+          SHA256=$(shasum -a 256 path/to/pysync-macos.tar.gz | awk '{print $1}')
+          
+          cd homebrew-tap
+          sed -i "s|url \".*\"|url \"${RELEASE_URL}\"|g" pysync.rb
+          sed -i "s|sha256 \".*\"|sha256 \"${SHA256}\"|g" pysync.rb
+          sed -i "s/version \".*\"/version \"${NEW_VERSION}\"/g" pysync.rb || true
+
+          git config user.name "GitHub Actions"
+          git config user.email "actions@github.com"
+          git commit -am "Update pysync to version ${RELEASE_VERSION}"
+          git push
