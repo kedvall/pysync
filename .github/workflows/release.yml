@@ -30,17 +30,19 @@ jobs:
         run: echo "RELEASE_VERSION=$(uv run --with python-semantic-release semantic-release --strict version --print)" >> $GITHUB_ENV
 
       - name: Build Executable
-        run: uv run --with nuitka python -m nuitka --assume-yes-for-downloads --onefile --onefile-tempdir-spec="{CACHE_DIR}/pysync/v${RELEASE_VERSION}" pysync
-      - run: mv pysync.bin pysync-v${RELEASE_VERSION}-$(echo "${{ runner.os }}" | tr '[:upper:]' '[:lower:]').bin
+        run: uv run --with nuitka python -m nuitka --assume-yes-for-downloads --onefile --onefile-tempdir-spec="{CACHE_DIR}/pysync/v${RELEASE_VERSION}" --output-filename="pysync" pysync
+
+      - name: Package files
+        run: tar -czvf "pysync-$(echo "${{ runner.os }}" | tr '[:upper:]' '[:lower:]').tar.gz" pysync
 
       - name: Show files
-        run: ls -lh
+        run: ls -lR
 
       - name: Upload Artifacts
         uses: actions/upload-artifact@v4
         with:
           name: ${{ runner.os }}-build
-          path: "*.bin"
+          path: "*.tar.gz"
 
   release:
     runs-on: ubuntu-latest
