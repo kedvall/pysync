@@ -29,8 +29,9 @@ jobs:
       - name: Get Release Version
         run: echo "RELEASE_VERSION=$(uv run --with python-semantic-release semantic-release --strict version --print)" >> $GITHUB_ENV
 
+        # NOTE: sed is not used as its usage differs on mac and linux
       - name: Update version in __main__.py
-        run: sed -i "s|__version__ = \".*\"|__version__ = \"${{ env.RELEASE_VERSION }}\"|" pysync/__main__.py
+        run: python -c "import os, re; f='pysync/__main__.py'; data = open(f).read(); data = re.sub(r'__version__ = \".*\"', f'__version__ = \"{os.environ[\"RELEASE_VERSION\"]}\"', data); open(f, 'w').write(data)"
 
       - name: Build Executable
         run: uv run --with nuitka python -m nuitka --disable-ccache --onefile --onefile-tempdir-spec="{CACHE_DIR}/pysync/v${RELEASE_VERSION}" pysync
