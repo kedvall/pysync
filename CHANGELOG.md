@@ -1,6 +1,16 @@
 # CHANGELOG
 
 
+## v0.3.0 (2025-03-17)
+
+### Features
+
+- **support-version-arg**: Support --version arg and Homebrew formulae
+  ([`012c380`](https://github.com/kedvall/pysync/commit/012c380dc6d77644da255a3b26be86650cc6e4c6))
+
+Support version arg; Support Homebrew formulae
+
+
 ## v0.2.2 (2025-03-17)
 
 ### Bug Fixes
