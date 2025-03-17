@@ -1,6 +1,16 @@
 # CHANGELOG
 
 
+## v0.3.3 (2025-03-17)
+
+### Bug Fixes
+
+- **fix-homebrew-release-version**: Fix Homebrew release version
+  ([`c9d1ca5`](https://github.com/kedvall/pysync/commit/c9d1ca5816bf3720be076d30cff831126fe6b763))
+
+Fix release version
+
+
 ## v0.3.2 (2025-03-17)
 
 ### Bug Fixes
