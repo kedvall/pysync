@@ -98,7 +98,7 @@ jobs:
 
       - name: Update Homebrew Formula
         run: |
-          RELEASE_URL="https://github.com/kedvall/pysync/releases/download/${RELEASE_VERSION}/pysync-macos.tar.gz"
+          RELEASE_URL="https://github.com/kedvall/pysync/releases/download/v${RELEASE_VERSION}/pysync-macos.tar.gz"
           SHA256=$(shasum -a 256 dist/pysync-macos.tar.gz | awk '{print $1}')
           
           cd homebrew-tap
