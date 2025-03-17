@@ -1,6 +1,23 @@
 # CHANGELOG
 
 
+## v0.3.5 (2025-03-17)
+
+### Bug Fixes
+
+- **fix-outdated-version**: Fix outdated executable version
+  ([`a7ca6dd`](https://github.com/kedvall/pysync/commit/a7ca6dd406f7169f8dd6880b89572746befa8d84))
+
+- **fix-sed**: Fix sed command
+  ([`98a19b2`](https://github.com/kedvall/pysync/commit/98a19b21f85d8772c684f852343c4e4ff81ed284))
+
+- **fix-sed-env-var**: Fix sed env var
+  ([`087edbd`](https://github.com/kedvall/pysync/commit/087edbd511c27d5b785c15910f16625ecfa5c4e0))
+
+- **use-python-update-ver**: Use python to update release version in executable
+  ([`2b39f88`](https://github.com/kedvall/pysync/commit/2b39f885b099634fea7827c60cbc16a343147468))
+
+
 ## v0.3.4 (2025-03-17)
 
 ### Bug Fixes
