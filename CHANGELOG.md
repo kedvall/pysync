@@ -1,6 +1,14 @@
 # CHANGELOG
 
 
+## v0.3.2 (2025-03-17)
+
+### Bug Fixes
+
+- **update-readme**: Update readme
+  ([`bd424ea`](https://github.com/kedvall/pysync/commit/bd424eafa07d1068156387fb01b9ccaffd5937a9))
+
+
 ## v0.3.1 (2025-03-17)
 
 ### Bug Fixes
