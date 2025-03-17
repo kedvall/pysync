@@ -25,6 +25,7 @@ build-backend = "hatchling.build"
 
 [tool.semantic_release]
 version_toml = ["pyproject.toml:project.version"]
+version_variables = ["pysync/__main__.py:__version__"]
 
 [tool.semantic_release.branches.main]
 match = "main"

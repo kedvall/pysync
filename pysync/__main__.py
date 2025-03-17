@@ -15,6 +15,8 @@ from rich.console import Console
 
 type ParsedArgs = tuple[Path, list[str]]
 
+__version__ = "0.2.2"
+
 app = typer.Typer()
 console = Console()
 
@@ -122,13 +124,12 @@ def sync_dependencies(workdir: Path) -> bool:
 
     # Bump dependency specifiers for root-level dependencies and dependencies in dependency groups
     for dependency in dependencies:
-        dependency_pattern = rf"^ *\"{dependency.string}[~=!<\"]"
+        dependency_pattern = rf"^ *\"{dependency.string}[~=!<\"]"  # TODO: Handle single-line dep list
         for line_num, line in enumerate(pyproject_raw):
             if re.search(dependency_pattern, line):
                 pyproject_raw[line_num] = line.replace(
-                    dependency.string, get_synced_dependency_version(
-                        dependency, top_level_packages[dependency.name], updates
-                    )
+                    dependency.string,
+                    get_synced_dependency_version(dependency, top_level_packages[dependency.name], updates),
                 )
 
     # Write updated pyproject.toml, write as raw lines to preserve formatting and comments
@@ -170,8 +171,18 @@ def args_cb(arg_1: str) -> ParsedArgs:
     return workdir, uv_passthrough_arg
 
 
+def version_cb(value: bool) -> None:
+    if value:
+        console.print(f"pysync {__version__}")
+        raise typer.Exit()
+
+
 @app.command(context_settings={"allow_extra_args": True, "ignore_unknown_options": True})
-def sync(ctx: typer.Context, args: Annotated[str, typer.Argument(callback=args_cb, default_factory=Path.cwd)]) -> None:
+def sync(
+    ctx: typer.Context,
+    args: Annotated[str, typer.Argument(callback=args_cb, default_factory=Path.cwd)],
+    version: Annotated[bool | None, typer.Option("--version", callback=version_cb, is_eager=True)] = None,
+) -> None:
     """Sync minimum dependency versions of the pyproject.toml and uv.lock files"""
     workdir, initial_arg = cast(ParsedArgs, args)
 
