@@ -1,6 +1,14 @@
 # CHANGELOG
 
 
+## v0.3.4 (2025-03-17)
+
+### Bug Fixes
+
+- **fix-homebrew-release-url**: Fix homebrew release url; Fix uv lock sync on release
+  ([`bfc7f37`](https://github.com/kedvall/pysync/commit/bfc7f37b953ddd7861bacc748db505b5e1c9836a))
+
+
 ## v0.3.3 (2025-03-17)
 
 ### Bug Fixes
