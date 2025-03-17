@@ -26,17 +26,17 @@ jobs:
         with:
           python-version-file: "pyproject.toml"
 
-      - name: Set Release Version
+      - name: Get Release Version
         run: echo "RELEASE_VERSION=$(uv run --with python-semantic-release semantic-release --strict version --print)" >> $GITHUB_ENV
+
+      - name: Update version in __main__.py
+        run: sed -i "s/__version__ = \".*\"/__version__ = \"${RELEASE_VERSION}\"/" pysync/__main__.py
 
       - name: Build Executable
         run: uv run --with nuitka python -m nuitka --disable-ccache --onefile --onefile-tempdir-spec="{CACHE_DIR}/pysync/v${RELEASE_VERSION}" pysync
 
       - name: Package files
         run: mkdir dist && mv pysync.bin dist/pysync && tar -C dist/ -czvf "pysync-$(echo "${{ runner.os }}" | tr '[:upper:]' '[:lower:]').tar.gz" pysync
-
-      - name: Show files
-        run: ls -lR
 
       - name: Upload Artifacts
         uses: actions/upload-artifact@v4
@@ -77,11 +77,8 @@ jobs:
           pattern: "*-build"
           merge-multiple: true
 
-      - name: Show files
-        run: ls -lR
-
       - name: Publish Release
-        run: uv run --with python-semantic-release semantic-release --strict version
+        run: uv run --with python-semantic-release semantic-release --strict version && rm uv.lock  # Prevent uploading lockfile as asset to release
 
       - name: Get Release Version
         run: echo "RELEASE_VERSION=$(uv run --with python-semantic-release semantic-release --strict version --print-last-released)" >> $GITHUB_ENV
