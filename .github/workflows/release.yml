@@ -34,10 +34,10 @@ jobs:
         run: python -c "import os, re; f='pysync/__main__.py'; data = open(f).read(); data = re.sub(r'__version__ = \".*\"', f'__version__ = \"{os.environ[\"RELEASE_VERSION\"]}\"', data); open(f, 'w').write(data)"
 
       - name: Build Executable
-        run: uv run --with nuitka python -m nuitka --disable-ccache --standalone -o pysync pysync
+        run: uv run --with nuitka python -m nuitka --disable-ccache --onefile --onefile-tempdir-spec="{CACHE_DIR}/pysync/v${RELEASE_VERSION}" pysync
 
       - name: Package files
-        run: tar -C pysync.dist/ -czvf "pysync-$(echo "${{ runner.os }}" | tr '[:upper:]' '[:lower:]').tar.gz" pysync libpython3.13.dylib
+        run: mkdir dist && mv pysync.bin dist/pysync && tar -C dist/ -czvf "pysync-$(echo "${{ runner.os }}" | tr '[:upper:]' '[:lower:]').tar.gz" pysync
 
       - name: Upload Artifacts
         uses: actions/upload-artifact@v4
