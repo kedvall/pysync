@@ -1,6 +1,19 @@
 # CHANGELOG
 
 
+## v0.2.2 (2025-03-17)
+
+### Bug Fixes
+
+- **fix-packaging**: Fix packaging
+  ([`28ce899`](https://github.com/kedvall/pysync/commit/28ce899054aaf10caf716bb06f6665e01a024d2f))
+
+- **package-as-tar**: Release as .tar.gz
+  ([`4592c04`](https://github.com/kedvall/pysync/commit/4592c04d26a0f7224bf32b41ae983327a745d910))
+
+Package release as .tar.gz
+
+
 ## v0.2.1 (2025-03-14)
 
 ### Bug Fixes
