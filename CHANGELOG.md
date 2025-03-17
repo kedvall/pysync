@@ -1,6 +1,22 @@
 # CHANGELOG
 
 
+## v0.3.1 (2025-03-17)
+
+### Bug Fixes
+
+- **alternative-ccache-disable**: Try alternative method of disabling ccache download
+  ([`09cc44d`](https://github.com/kedvall/pysync/commit/09cc44df9dc90152418cddd66112768a0bae3b80))
+
+- **fix-ccache-disable-download**: Fix ccache null pipe
+  ([`b7bd135`](https://github.com/kedvall/pysync/commit/b7bd135ba17d37c4538ff439c870d850987514fc))
+
+Fix cchace dev/null pipe
+
+- **fix-formulae-release**: Fix Homebrew formulae release; Disable ccache download
+  ([`0d8e33c`](https://github.com/kedvall/pysync/commit/0d8e33c3427814d09aca6851692ec823e8db030d))
+
+
 ## v0.3.0 (2025-03-17)
 
 ### Features
