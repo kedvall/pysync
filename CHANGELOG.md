@@ -1,6 +1,19 @@
 # CHANGELOG
 
 
+## v0.3.6 (2025-03-17)
+
+### Bug Fixes
+
+- **release-as-standalone**: Release as standalone (vs onefile)
+  ([`4206413`](https://github.com/kedvall/pysync/commit/420641364ead2d7ef66da633035bbcce2014b3db))
+
+- **revert-standalone**: Revert standalone release; Fix lagging version
+  ([`7d1ec04`](https://github.com/kedvall/pysync/commit/7d1ec044de0f237a9ec5c29ca7346e0535c1b1e1))
+
+Revert standalone
+
+
 ## v0.3.5 (2025-03-17)
 
 ### Bug Fixes
