@@ -26,8 +26,6 @@ share/python-wheels/
 *.egg
 MANIFEST
 .python-version
-**/.DS_Store
-*.dist/
 
 # PyInstaller
 #  Usually these files are written by a python script from a template

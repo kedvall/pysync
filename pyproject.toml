@@ -27,7 +27,6 @@ build-backend = "hatchling.build"
 assets = ["uv.lock"]  # Hack to include the updated lockfile in the release commit
 build_command = "uv lock"  # Hack to update the lockfile after version bump
 version_toml = ["pyproject.toml:project.version"]
-version_variables = ["pysync/__main__.py:__version__"]
 
 [tool.semantic_release.branches.main]
 match = "main"
