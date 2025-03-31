@@ -43,7 +43,8 @@ class DependencyMap:
     additional_dependencies: defaultdict[str, list[Dependency]] = field(default_factory=lambda: defaultdict(list))
 
     # Regex for Python package names, see https://packaging.python.org/en/latest/specifications/name-normalization/
-    _PACKAGE_NAME_REGEX = r"^([A-Z0-9][A-Z0-9._-]*[A-Z0-9]|[A-Z0-9])"
+    # This pattern also adds matching for optional extras, i.e. gunicorn[gevent]
+    _PACKAGE_NAME_REGEX = r"^([A-Z0-9](?:[A-Z0-9._-]*[A-Z0-9])?)(\[[A-Z0-9]+(?:,[A-Z0-9]+)*\])?"
 
     def add_dependency(self, raw_dependency: str, group: str | None = None) -> None:
         dependency = self._get_dependency_info(raw_dependency)
@@ -60,7 +61,7 @@ class DependencyMap:
             console.print(f"[red]Failed to parse {dependency}, invalid package name")
             raise typer.Exit(1)
         version_specifiers = str(dependency[match.end() :])  # Trim package name
-        return Dependency(name=match[0], string=dependency, specifiers=SpecifierSet(version_specifiers))
+        return Dependency(name=match.group(1), string=dependency, specifiers=SpecifierSet(version_specifiers))
 
 
 def get_dependencies(pyproject: dict[str, Any]) -> DependencyMap:
@@ -124,13 +125,16 @@ def sync_dependencies(workdir: Path) -> bool:
 
     # Bump dependency specifiers for root-level dependencies and dependencies in dependency groups
     for dependency in dependencies:
-        dependency_pattern = rf"^ *\"{dependency.string}[~=!<\"]"  # TODO: Handle single-line dep list
+        dependency_pattern = rf"^ *\"{re.escape(dependency.string)}[~=!<\"]"  # TODO: Handle single-line dep list
         for line_num, line in enumerate(pyproject_raw):
             if re.search(dependency_pattern, line):
                 pyproject_raw[line_num] = line.replace(
                     dependency.string,
                     get_synced_dependency_version(dependency, top_level_packages[dependency.name], updates),
                 )
+                break
+        else:
+            console.print(f"[red]Failed to find dependency for package '{dependency.name}' in pyproject.toml")
 
     # Write updated pyproject.toml, write as raw lines to preserve formatting and comments
     with Path(workdir, "pyproject.toml").open("w", newline="") as f:
