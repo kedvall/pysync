@@ -1,6 +1,14 @@
 # CHANGELOG
 
 
+## v0.4.0 (2025-03-31)
+
+### Features
+
+- **support-package-extras**: Support package extras; Bump min Python version down to 3.11
+  ([`647a011`](https://github.com/kedvall/pysync/commit/647a011cad40608c50240e7480dc754deb737eae))
+
+
 ## v0.3.7 (2025-03-17)
 
 ### Bug Fixes
